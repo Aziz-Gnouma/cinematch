@@ -1,0 +1,108 @@
+<ion-content>
+  <header class="cm-page-head safe">
+    <span class="cm-eyebrow">Régie</span>
+    <h1>Cabine de <em>projection</em></h1>
+  </header>
+
+  <div class="kpis">
+    <div><b>{{ catalogCount() }}</b><span>Films</span></div>
+    <div><b>{{ activeCount() }}</b><span>Membres actifs</span></div>
+  </div>
+
+  <ion-segment class="cm-segment" [value]="tab()" (ionChange)="tab.set($any($event).detail.value)">
+    <ion-segment-button value="movies">Films</ion-segment-button>
+    <ion-segment-button value="users">Membres</ion-segment-button>
+  </ion-segment>
+
+  @if (tab() === 'movies') {
+  <div class="actions">
+    <button class="action" (click)="seed()" [disabled]="!tmdbReady || !!seedProgress()">
+      <ion-icon name="cloud-download-outline" />
+      <div>
+        <strong>Base de départ TMDB</strong>
+        <span>{{ seedProgress() ?? 'Importer ~80 films populaires & cultes' }}</span>
+      </div>
+      @if (seedProgress()) {
+      <ion-spinner name="crescent" />
+      }
+    </button>
+    <button class="action" routerLink="/admin/new-movie">
+      <ion-icon name="create-outline" />
+      <div>
+        <strong>Ajouter manuellement</strong>
+        <span>Saisir un film absent de TMDB</span>
+      </div>
+    </button>
+  </div>
+
+  @if (!tmdbReady) {
+  <div class="cm-error mx">Clé TMDB absente : renseignez <code>environment.tmdb</code>.</div>
+  }
+
+  <ion-searchbar
+    class="cm-search"
+    placeholder="Rechercher sur TMDB…"
+    [debounce]="350"
+    (ionInput)="search($any($event).detail.value ?? '')"
+  />
+
+  @if (searching()) {
+  <div class="center"><ion-spinner name="dots" /></div>
+  }
+  <ul class="hits">
+    @for (h of hits(); track h.id) {
+    <li>
+      @if (h.posterUrl) {
+      <img [src]="h.posterUrl" alt="" loading="lazy" />
+      } @else {
+      <div class="noimg"></div>
+      }
+      <div class="info">
+        <strong>{{ h.title }}</strong>
+        <span>{{ h.year || '—' }}</span>
+      </div>
+      @if (inCatalog().has(h.id)) {
+      <span class="in"><ion-icon name="checkmark" /> Au catalogue</span>
+      } @else {
+      <ion-button size="small" (click)="import(h)" [disabled]="importing().has(h.id)">
+        @if (importing().has(h.id)) {
+        <ion-spinner name="dots" />
+        } @else {
+        <ion-icon slot="icon-only" name="add" />
+        }
+      </ion-button>
+      }
+    </li>
+    }
+  </ul>
+  } @else {
+  <ion-searchbar
+    class="cm-search"
+    placeholder="Nom, email…"
+    [debounce]="150"
+    (ionInput)="userQuery.set($any($event).detail.value ?? '')"
+  />
+  <ul class="users">
+    @for (u of users(); track u.uid) {
+    <li [class.off]="u.disabled">
+      <img class="cm-avatar" [src]="u.photo" alt="" />
+      <div class="info">
+        <strong>
+          {{ u.firstName }} {{ u.lastName }} @if (u.role === 'admin') {
+          <span class="cm-tag">admin</span>
+          }
+        </strong>
+        <span>{{ u.email }} · {{ u.age }} ans · {{ u.favorites.length }} favoris</span>
+        <span class="state">{{ u.disabled ? 'Désactivé' : 'Actif' }}</span>
+      </div>
+      <ion-toggle
+        [checked]="!u.disabled"
+        [disabled]="u.uid === myUid()"
+        (ionChange)="setDisabled(u, !$any($event).detail.checked, $any($event).target)"
+        aria-label="Compte actif"
+      />
+    </li>
+    }
+  </ul>
+  }
+</ion-content>

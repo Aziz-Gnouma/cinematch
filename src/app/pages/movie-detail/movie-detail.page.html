@@ -1,0 +1,83 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="clear">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/discover" text="" class="round" />
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="cm-bleed" [fullscreen]="true">
+  @if (movie(); as m) {
+  <div class="backdrop" [style.backgroundImage]="'url(' + (m.backdropUrl || m.posterUrl) + ')'">
+    <div class="shade"></div>
+  </div>
+
+  <div class="layout cm-container">
+    <aside class="side">
+      @if (m.posterUrl) {
+      <img class="poster" [src]="m.posterUrl" [alt]="m.title" />
+      }
+      <ion-button
+        class="cm-btn fav"
+        expand="block"
+        [color]="isFav() ? 'danger' : 'primary'"
+        (click)="toggle()"
+        [disabled]="pending()"
+      >
+        @if (pending()) {
+        <ion-spinner name="crescent" />
+        } @else {
+        <ion-icon slot="start" [name]="isFav() ? 'heart' : 'heart-outline'" />
+        {{ isFav() ? 'Dans ma playlist' : 'Ajouter à ma playlist' }} }
+      </ion-button>
+    </aside>
+
+    <section class="main">
+      @if (m.directors.length) {
+      <span class="cm-eyebrow">Un film de {{ m.directors.join(', ') }}</span>
+      }
+      <h1 class="cm-display">{{ m.title }}</h1>
+
+      <div class="stats">
+        <div class="stat score"><ion-icon name="star" /><b>{{ m.rating }}</b><small>/10</small></div>
+        <div class="stat"><ion-icon name="calendar-outline" />{{ m.year || '—' }}</div>
+        <div class="stat"><ion-icon name="time-outline" />{{ runtime(m.runtime) }}</div>
+        <div class="stat"><ion-icon name="globe-outline" />{{ language(m.language) }}</div>
+      </div>
+
+      <div class="genres">
+        @for (g of m.genres; track g) {
+        <span class="cm-tag">{{ g }}</span>
+        }
+      </div>
+
+      @if (m.overview) {
+      <h2 class="cm-eyebrow">Synopsis</h2>
+      <p class="overview">{{ m.overview }}</p>
+      } @if (m.cast.length) {
+      <h2 class="cm-eyebrow">Têtes d'affiche</h2>
+      <ul class="cast">
+        @for (a of m.cast; track a) {
+        <li>
+          <span class="initials">{{ initials(a) }}</span>
+          <span>{{ a }}</span>
+        </li>
+        }
+      </ul>
+      }
+    </section>
+  </div>
+  } @else if (loading()) {
+  <div class="backdrop loading"></div>
+  <div class="layout cm-container">
+    <aside class="side"><ion-skeleton-text [animated]="true" class="poster sk" /></aside>
+    <section class="main">
+      <ion-skeleton-text [animated]="true" style="width: 60%; height: 48px" />
+      <ion-skeleton-text [animated]="true" style="width: 40%; height: 18px; margin-top: 16px" />
+      <ion-skeleton-text [animated]="true" style="width: 90%; height: 80px; margin-top: 24px" />
+    </section>
+  </div>
+  } @else {
+  <div class="cm-empty"><h3>Film introuvable</h3></div>
+  }
+</ion-content>

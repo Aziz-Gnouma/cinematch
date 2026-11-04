@@ -1,0 +1,59 @@
+rules_version = '2';
+
+// CinéMatch security rules
+//  - users register themselves with role 'user' and disabled == false
+//  - nobody can delete a user; admins can only flip `disabled`
+//  - disabled users lose all read/write access
+//  - only admins write the movie catalogue
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function isActive() { return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && me().disabled == false; }
+    function isAdmin() { return isActive() && me().role == 'admin'; }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+
+    match /users/{uid} {
+      // Own doc is always readable (needed to detect a disabled account at login).
+      allow get: if signedIn() && request.auth.uid == uid;
+      // Active members can read profiles for matching.
+      allow read: if isActive();
+
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.uid == uid
+        && request.resource.data.role == 'user'
+        && request.resource.data.disabled == false
+        && request.resource.data.favorites is list
+        && request.resource.data.firstName is string && request.resource.data.firstName.size() > 0
+        && request.resource.data.lastName is string && request.resource.data.lastName.size() > 0
+        && request.resource.data.age is int && request.resource.data.age >= 10 && request.resource.data.age <= 120
+        && request.resource.data.photo is string && request.resource.data.photo.size() < 400000;
+
+      allow update: if
+        // a member edits their own playlist / photo / names, never role or status
+        (request.auth.uid == uid && isActive()
+          && changed().hasOnly(['favorites', 'favoriteMovies', 'photo', 'firstName', 'lastName', 'age'])
+          && request.resource.data.favorites is list
+          && request.resource.data.favorites.size() <= 500
+          && (!('favoriteMovies' in request.resource.data)
+              || (request.resource.data.favoriteMovies is list
+                  && request.resource.data.favoriteMovies.size() <= 500)))
+        // an admin may only toggle `disabled`, and never on their own account
+        || (isAdmin() && request.auth.uid != uid
+          && changed().hasOnly(['disabled'])
+          && request.resource.data.disabled is bool);
+
+      allow delete: if false;
+    }
+
+    match /movies/{movieId} {
+      allow read: if isActive();
+      allow create, update: if isAdmin()
+        && request.resource.data.title is string && request.resource.data.title.size() > 0
+        && request.resource.data.genres is list
+        && request.resource.data.year is int;
+      allow delete: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,56 @@
+<ion-content>
+  <header class="cm-page-head safe">
+    <span class="cm-eyebrow">Ma playlist</span>
+    <h1>Mes <em>favoris</em></h1>
+    <p>{{ items().length }} films · {{ dna().hours }} h de projection</p>
+  </header>
+
+  @if (items().length) {
+  <section class="dna cm-ticket" style="--tear: 50%">
+    <div class="dna-head">
+      <ion-icon name="sparkles-outline" />
+      <span class="cm-eyebrow">Votre ADN cinéma</span>
+      <span class="decade">{{ dna().decade }}</span>
+    </div>
+    <div class="bars">
+      @for (g of dna().genres; track g.label) {
+      <div class="bar">
+        <span>{{ g.label }}</span>
+        <i [style.width.%]="g.pct"></i>
+      </div>
+      }
+    </div>
+    @if (dna().actors.length) {
+    <div class="cm-perforation"></div>
+    <p class="actors">Acteurs fétiches : <strong>{{ dna().actors.join(' · ') }}</strong></p>
+    }
+  </section>
+
+  <ol class="list">
+    @for (m of items(); track m.id; let i = $index) {
+    <li>
+      <span class="rank cm-display">{{ i + 1 }}</span>
+      <a class="row" [routerLink]="['/movie', m.id]">
+        @if (m.posterUrl) {
+        <img [src]="m.posterUrl" alt="" loading="lazy" />
+        }
+        <div>
+          <strong>{{ m.title }}</strong>
+          <span>{{ m.year }} · {{ m.genres.slice(0, 2).join(', ') }}</span>
+          <span class="cast">{{ m.cast.slice(0, 2).join(', ') }}</span>
+        </div>
+      </a>
+      <button class="rm" (click)="remove(m.id)" aria-label="Retirer">
+        <ion-icon name="heart-dislike-outline" />
+      </button>
+    </li>
+    }
+  </ol>
+  } @else {
+  <div class="cm-empty">
+    <h3>Playlist vide</h3>
+    <p>Touchez le ♥ d'un film pour l'ajouter. Il en faut au moins 3 pour le matching.</p>
+    <ion-button class="cm-btn" routerLink="/tabs/discover">Explorer les films</ion-button>
+  </div>
+  }
+</ion-content>

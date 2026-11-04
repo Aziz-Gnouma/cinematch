@@ -1,0 +1,237 @@
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($any($event))">
+    <ion-refresher-content />
+  </ion-refresher>
+
+  <header class="cm-page-head safe">
+    <span class="cm-eyebrow">Matching</span>
+    <h1>Vos <em>âmes</em> cinéphiles</h1>
+    <p>
+      Comparaison par films, genres, acteurs, époque, réalisateurs et langue. Seuls les profils au-delà de {{ threshold
+      }}% apparaissent.
+    </p>
+  </header>
+
+  @if (myCount() < minFavorites) {
+  <div class="cm-empty">
+    <ion-icon name="people-outline" />
+    <h3>Encore {{ minFavorites - myCount() }} film{{ minFavorites - myCount() > 1 ? 's' : '' }}</h3>
+    <p>Ajoutez au moins {{ minFavorites }} favoris pour que l'on puisse dresser votre profil de goûts.</p>
+    <ion-button class="cm-btn" routerLink="/tabs/discover">Choisir des films</ion-button>
+  </div>
+  } @else if (error()) {
+  <div class="cm-empty">
+    <h3>Oups</h3>
+    <p>{{ error() }}</p>
+  </div>
+  } @else if (loading() && !matches().length) {
+  <div class="loading"><ion-spinner name="crescent" /></div>
+  } @else if (!matches().length) {
+  <div class="cm-empty">
+    <ion-icon name="people-outline" />
+    <h3>Pas encore de jumeau</h3>
+    <p>
+      {{ compared() }} profil{{ compared() > 1 ? 's' : '' }} comparé{{ compared() > 1 ? 's' : '' }}, aucun au-dessus de
+      {{ threshold }}%. @if (near().length) { Votre meilleur score est de <b>{{ pct(near()[0].score) }}%</b>. } Ajoutez
+      des films du même genre ou de la même époque pour rapprocher vos goûts.
+    </p>
+  </div>
+  } @else {
+  <div class="toolbar">
+    <ion-searchbar
+      class="cm-search"
+      [placeholder]="searchPlaceholder()"
+      [value]="query()"
+      [debounce]="150"
+      (ionInput)="onSearch($any($event).detail.value)"
+      (ionClear)="onSearch('')"
+    />
+    <button
+      class="filter-btn"
+      [class.on]="filtersOpen()"
+      (click)="filtersOpen.set(!filtersOpen())"
+      aria-label="Filtres"
+      [attr.aria-expanded]="filtersOpen()"
+    >
+      <ion-icon name="options-outline" />
+      @if (activeCount()) {
+      <span class="badge">{{ activeCount() }}</span>
+      }
+    </button>
+  </div>
+
+  <div class="cm-chips scopes">
+    @for (s of scopes; track s.key) {
+    <button class="cm-chip" [class.active]="scope() === s.key" (click)="scope.set(s.key)">{{ s.label }}</button>
+    }
+  </div>
+
+  @if (suggestions().length) {
+  <div class="suggestions">
+    @for (s of suggestions(); track s.kind + s.value) {
+    <button (click)="pickSuggestion(s)">
+      <ion-icon name="search-outline" />
+      <span>{{ s.value }}</span>
+      <small>{{ hitLabel[s.kind] }}</small>
+    </button>
+    }
+  </div>
+  } @if (filtersOpen()) {
+  <section class="panel">
+    <div class="panel-block">
+      <span class="cm-eyebrow">Trier par</span>
+      <div class="cm-chips flush">
+        @for (s of sorts; track s.key) {
+        <button class="cm-chip" [class.active]="sort() === s.key" (click)="sort.set(s.key)">{{ s.label }}</button>
+        }
+      </div>
+    </div>
+
+    <div class="panel-block">
+      <div class="panel-row">
+        <span class="cm-eyebrow">Compatibilité minimum</span>
+        <b>{{ minScore() }}%</b>
+      </div>
+      <ion-range
+        class="cm-range"
+        [min]="threshold"
+        [max]="100"
+        [step]="5"
+        [snaps]="true"
+        [value]="minScore()"
+        (ionInput)="onMinScore($any($event))"
+      />
+    </div>
+
+    @if (ageBounds(); as b) { @if (b.max > b.min) {
+    <div class="panel-block">
+      <div class="panel-row">
+        <span class="cm-eyebrow">Âge</span>
+        <b>{{ ageValue().lower }} – {{ ageValue().upper }} ans</b>
+      </div>
+      <ion-range
+        class="cm-range"
+        [dualKnobs]="true"
+        [min]="b.min"
+        [max]="b.max"
+        [step]="1"
+        [value]="ageValue()"
+        (ionInput)="onAge($any($event))"
+      />
+    </div>
+    } }
+
+    <div class="panel-block">
+      <span class="cm-eyebrow">Affinité forte en</span>
+      <div class="cm-chips flush wrap">
+        @for (f of facetOptions; track f.key) {
+        <button class="cm-chip" [class.active]="strongFacets().includes(f.key)" (click)="toggleFacet(f.key)">
+          {{ f.label }}
+        </button>
+        }
+      </div>
+    </div>
+
+    <button
+      class="reset"
+      (click)="resetFilters()"
+      [disabled]="!activeCount() && sort() === 'score' && scope() === 'all'"
+    >
+      <ion-icon name="refresh-outline" /> Réinitialiser
+    </button>
+  </section>
+  }
+
+  <p class="summary">
+    @if (rows().length !== matches().length) {
+    <strong>{{ rows().length }}</strong> sur {{ matches().length }} match{{ matches().length > 1 ? 's' : '' }}
+    <button class="link" (click)="resetFilters()">Effacer les filtres</button>
+    } @else {
+    <strong>{{ matches().length }}</strong> match{{ matches().length > 1 ? 's' : '' }} sur {{ compared() }} profils
+    comparés }
+  </p>
+
+  @if (!rows().length) {
+  <div class="cm-empty">
+    <ion-icon name="search-outline" />
+    <h3>Aucun résultat</h3>
+    <p>
+      @if (query().trim()) { Aucun de vos matchs n'a « <b>{{ query() }}</b> » dans ses favoris. } @else { Aucun match ne
+      correspond à ces filtres. }
+    </p>
+    <ion-button class="cm-btn" (click)="resetFilters()">Réinitialiser les filtres</ion-button>
+  </div>
+  }
+
+  <ul class="matches">
+    @for (row of rows(); track row.r.user.uid) { @let r = row.r;
+    <li class="cm-ticket match" [class.open]="expanded() === r.user.uid" style="--tear: 50px">
+      <button class="head" (click)="toggle(r.user.uid)">
+        <img class="cm-avatar big" [src]="r.user.photo" alt="" />
+        <div class="who">
+          <strong>{{ r.user.firstName }} {{ r.user.lastName }}</strong>
+          <span>{{ r.user.age }} ans · {{ r.user.favorites.length }} favoris</span>
+          @if (row.hits.length) {
+          <span class="hits">
+            @for (h of row.hits; track h.kind + h.value) {
+            <span class="hit"
+              ><small>{{ hitLabel[h.kind] }}</small> {{ h.value }}@if (h.count > 1 && h.kind !== 'name') {
+              <em>×{{ h.count }}</em>
+              }</span
+            >
+            }
+          </span>
+          }
+        </div>
+        <div class="gauge" [style.--p]="pct(r.score)">
+          <span>{{ pct(r.score) }}<small>%</small></span>
+        </div>
+      </button>
+
+      @if (expanded() === r.user.uid) {
+      <div class="cm-perforation"></div>
+      <div class="details">
+        @for (f of r.facets; track f.key) {
+        <div class="facet">
+          <div class="facet-top">
+            <span>{{ f.label }} <small>×{{ f.weight }}</small></span>
+            <b>{{ pct(f.score) }}%</b>
+          </div>
+          <div class="track"><i [style.width.%]="pct(f.score)"></i></div>
+          @if (f.shared.length && f.key !== 'movies') {
+          <small class="shared">{{ f.shared.join(' · ') }}</small>
+          }
+        </div>
+        } @if (r.sharedMovies.length) {
+        <span class="cm-eyebrow">Films en commun</span>
+        <div class="posters">
+          @for (m of r.sharedMovies; track m.id) {
+          <a [routerLink]="['/movie', m.id]"><img [src]="m.posterUrl" [alt]="m.title" /></a>
+          }
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="hint"><ion-icon name="chevron-down" /> Voir le détail</div>
+      }
+    </li>
+    }
+  </ul>
+  } @if (myCount() >= minFavorites && near().length && !error()) {
+  <section class="near">
+    <span class="cm-eyebrow">Presque jumeaux · sous le seuil de {{ threshold }}%</span>
+    <ul>
+      @for (r of near(); track r.user.uid) {
+      <li>
+        <img class="cm-avatar" [src]="r.user.photo" alt="" />
+        <div class="who">
+          <strong>{{ r.user.firstName }} {{ r.user.lastName }}</strong>
+          <span>{{ topFacets(r) }}</span>
+        </div>
+        <span class="near-score">{{ pct(r.score) }}%</span>
+      </li>
+      }
+    </ul>
+  </section>
+  }
+</ion-content>

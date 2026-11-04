@@ -1,0 +1,48 @@
+<ion-content>
+  @if (me(); as me) {
+  <header class="cm-page-head safe">
+    <span class="cm-eyebrow">Profil</span>
+    <h1>Carte de <em>membre</em></h1>
+  </header>
+
+  <section class="cm-ticket card" style="--tear: 72%">
+    <div class="glow"></div>
+    <div class="top">
+      <button class="photo" (click)="retakePhoto()" aria-label="Changer de photo">
+        <img [src]="me.photo" alt="" />
+        <span>
+          @if (saving()) {
+          <ion-spinner name="dots" />
+          } @else {
+          <ion-icon name="camera" />
+          }
+        </span>
+      </button>
+      <div class="who">
+        <h2 class="cm-display">{{ me.firstName }}<br />{{ me.lastName }}</h2>
+        <span>{{ me.age }} ans · {{ me.email }}</span>
+        @if (me.role === 'admin') {
+        <span class="cm-tag admin"><ion-icon name="shield-checkmark" /> Administrateur</span>
+        }
+      </div>
+    </div>
+    <div class="stats">
+      <div><b>{{ stats().films }}</b><span>Films</span></div>
+      <div><b>{{ stats().genres }}</b><span>Genres</span></div>
+      <div><b>{{ stats().actors }}</b><span>Acteurs</span></div>
+    </div>
+    <div class="cm-perforation"></div>
+    <div class="stub">
+      <span>MEMBRE DEPUIS {{ me.createdAt | date: 'MMM yyyy' | uppercase }}</span>
+      <span class="barcode" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <div class="actions">
+    <ion-button class="cm-btn-ghost" expand="block" (click)="logout()">
+      <ion-icon slot="start" name="log-out-outline" />
+      Se déconnecter
+    </ion-button>
+  </div>
+  }
+</ion-content>

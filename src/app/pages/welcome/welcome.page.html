@@ -1,0 +1,47 @@
+<ion-content [fullscreen]="true">
+  <div class="hero">
+    <div class="strip" aria-hidden="true">
+      @for (f of frames; track f) {
+      <span class="frame" [style.--i]="f"></span>
+      }
+    </div>
+    <div class="beam" aria-hidden="true"></div>
+
+    <div class="brand">
+      <span class="cm-eyebrow">Ciné · Match</span>
+      <h1 class="cm-display">Trouvez votre <em>jumeau</em> de cinéma.</h1>
+      <p>Composez votre playlist, on trouve ceux qui vibrent pour les mêmes films, genres, acteurs et époques.</p>
+    </div>
+  </div>
+
+  <form class="panel" (ngSubmit)="submit()">
+    @if (kickedOut()) {
+    <div class="cm-error">Votre compte a été désactivé par un administrateur.</div>
+    } @if (error()) {
+    <div class="cm-error">{{ error() }}</div>
+    }
+
+    <label class="cm-field">
+      <span>Email</span>
+      <ion-input type="email" name="email" [(ngModel)]="email" autocomplete="email" placeholder="vous@exemple.com" />
+    </label>
+    <label class="cm-field">
+      <span>Mot de passe</span>
+      <ion-input
+        type="password"
+        name="password"
+        [(ngModel)]="password"
+        autocomplete="current-password"
+        placeholder="••••••••"
+      />
+    </label>
+
+    <ion-button class="cm-btn" expand="block" type="submit" [disabled]="loading()">
+      @if (loading()) {
+      <ion-spinner name="dots" />
+      } @else { Entrer dans la salle }
+    </ion-button>
+
+    <p class="switch">Pas encore de billet ? <a routerLink="/register">Créer un compte</a></p>
+  </form>
+</ion-content>

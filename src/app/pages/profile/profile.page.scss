@@ -1,0 +1,96 @@
+.safe { padding-top: calc(env(safe-area-inset-top) + 24px); }
+
+.card {
+  margin: 6px 20px 24px;
+  padding: 22px 20px 16px;
+  overflow: hidden;
+  background: linear-gradient(150deg, #241d2c 0%, var(--cm-surface) 55%);
+}
+.glow {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  right: -70px;
+  top: -90px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 184, 65, 0.35), transparent 65%);
+  pointer-events: none;
+}
+.top {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.photo {
+  position: relative;
+  padding: 0;
+  background: none;
+  flex: none;
+  img {
+    width: 96px;
+    height: 96px;
+    border-radius: 22px;
+    object-fit: cover;
+    border: 2px solid var(--cm-amber);
+    display: block;
+  }
+  span {
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--cm-amber);
+    color: #1a1206;
+    display: grid;
+    place-items: center;
+    font-size: 16px;
+  }
+}
+.who {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  h2 { font-size: 32px; margin: 0; }
+  > span { font-size: 12px; color: var(--cm-text-dim); overflow: hidden; text-overflow: ellipsis; }
+}
+.admin {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 22px 0 16px;
+  text-align: center;
+  div { display: grid; gap: 2px; }
+  b { font-family: var(--cm-font-display); font-size: 34px; font-weight: 400; color: var(--cm-amber); line-height: 1; }
+  span { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cm-text-faint); }
+}
+.stub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: var(--cm-text-faint);
+}
+.barcode {
+  width: 90px;
+  height: 26px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--cm-text-dim) 0 2px,
+    transparent 2px 4px,
+    var(--cm-text-dim) 4px 5px,
+    transparent 5px 8px
+  );
+  opacity: 0.5;
+}
+.actions { padding: 0 20px 40px; }

@@ -1,0 +1,7 @@
+{
+  "name": "cinematch",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

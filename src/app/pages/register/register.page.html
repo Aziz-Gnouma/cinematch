@@ -1,0 +1,64 @@
+<ion-content [fullscreen]="true">
+  <div class="wrap">
+    <a class="back" routerLink="/welcome" aria-label="Retour"><ion-icon name="arrow-back" /></a>
+
+    <span class="cm-eyebrow">Billet d'entrée</span>
+    <h1 class="cm-display">Votre <em>carte</em> de membre.</h1>
+
+    <form (ngSubmit)="submit()">
+      <div class="cm-ticket card" style="--tear: 64%">
+        <button type="button" class="shot" (click)="takePhoto()" [class.has]="photo()">
+          @if (photo()) {
+          <img [src]="photo()" alt="Votre photo" />
+          <span class="retake"><ion-icon name="refresh" /></span>
+          } @else {
+          <ion-icon name="camera" />
+          <small>Selfie</small>
+          }
+        </button>
+        <div class="who">
+          <strong>{{ form.firstName || 'Prénom' }} {{ form.lastName || 'Nom' }}</strong>
+          <span>{{ form.age ? form.age + ' ans' : 'Âge' }}</span>
+        </div>
+        <div class="cm-perforation"></div>
+        <div class="stub">
+          <span>ADMIT ONE</span>
+          <span>N° {{ (form.email.length * 7919 + 1000) % 100000 }}</span>
+        </div>
+      </div>
+
+      @if (error()) {
+      <div class="cm-error">{{ error() }}</div>
+      }
+
+      <div class="row">
+        <label class="cm-field">
+          <span>Prénom</span>
+          <ion-input name="firstName" [(ngModel)]="form.firstName" autocomplete="given-name" />
+        </label>
+        <label class="cm-field">
+          <span>Nom</span>
+          <ion-input name="lastName" [(ngModel)]="form.lastName" autocomplete="family-name" />
+        </label>
+      </div>
+      <label class="cm-field">
+        <span>Âge</span>
+        <ion-input type="number" inputmode="numeric" name="age" [(ngModel)]="form.age" min="10" max="120" />
+      </label>
+      <label class="cm-field">
+        <span>Email</span>
+        <ion-input type="email" name="email" [(ngModel)]="form.email" autocomplete="email" />
+      </label>
+      <label class="cm-field">
+        <span>Mot de passe</span>
+        <ion-input type="password" name="password" [(ngModel)]="form.password" autocomplete="new-password" />
+      </label>
+
+      <ion-button class="cm-btn" expand="block" type="submit" [disabled]="loading()">
+        @if (loading()) {
+        <ion-spinner name="dots" />
+        } @else { Créer mon compte }
+      </ion-button>
+    </form>
+  </div>
+</ion-content>

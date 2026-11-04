@@ -1,0 +1,87 @@
+.hero {
+  position: relative;
+  min-height: 52vh;
+  display: flex;
+  align-items: flex-end;
+  padding: calc(env(safe-area-inset-top) + 40px) 24px 28px;
+  overflow: hidden;
+}
+
+.strip {
+  position: absolute;
+  top: 9%;
+  left: -20%;
+  display: flex;
+  gap: 10px;
+  padding: 14px 10px;
+  background: #050407;
+  transform: rotate(-8deg);
+  animation: roll 40s linear infinite;
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: repeating-linear-gradient(90deg, transparent 0 8px, rgba(255, 240, 220, 0.18) 8px 16px);
+  }
+  &::before { top: 3px; }
+  &::after { bottom: 3px; }
+}
+.frame {
+  flex: none;
+  width: 96px;
+  height: 130px;
+  border-radius: 6px;
+  background: linear-gradient(
+    calc(var(--i) * 37deg),
+    hsl(calc(30 + var(--i) * 23), 55%, 22%),
+    hsl(calc(340 + var(--i) * 17), 45%, 12%)
+  );
+  opacity: 0.85;
+}
+@keyframes roll {
+  to { transform: rotate(-8deg) translateX(-35%); }
+}
+
+.beam {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 85% 0%, rgba(245, 184, 65, 0.28), transparent 60%),
+    linear-gradient(180deg, transparent 30%, var(--cm-bg) 92%);
+}
+
+.brand {
+  position: relative;
+  h1 {
+    font-size: clamp(46px, 13vw, 68px);
+    margin: 10px 0 12px;
+  }
+  p {
+    margin: 0;
+    max-width: 34ch;
+    color: var(--cm-text-dim);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+}
+
+.panel {
+  padding: 8px 24px calc(env(safe-area-inset-bottom) + 32px);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.switch {
+  text-align: center;
+  color: var(--cm-text-dim);
+  font-size: 14px;
+  margin-top: 20px;
+  a { color: var(--cm-amber); font-weight: 700; text-decoration: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .strip { animation: none; }
+}

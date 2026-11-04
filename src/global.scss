@@ -1,0 +1,305 @@
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/flex-utils.css';
+@import '@ionic/angular/css/text-alignment.css';
+
+html,
+body {
+  background: var(--cm-bg);
+  color: var(--cm-text);
+}
+
+/* Film grain over everything — subtle, fixed, never intercepts taps. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  z-index: 99999;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 1.2s steps(4) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-3%, 2%); }
+  50% { transform: translate(2%, -3%); }
+  75% { transform: translate(-2%, -1%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body::after { animation: none; }
+}
+
+ion-content {
+  --background: var(--cm-bg);
+}
+
+ion-toolbar {
+  --padding-start: 12px;
+  --padding-end: 12px;
+}
+
+.cm-display {
+  font-family: var(--cm-font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.cm-display em {
+  font-style: italic;
+  color: var(--cm-amber);
+}
+.cm-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cm-text-faint);
+}
+.cm-dim {
+  color: var(--cm-text-dim);
+}
+
+.cm-page-head {
+  padding: 8px 20px 14px;
+  h1 {
+    margin: 6px 0 0;
+    font-family: var(--cm-font-display);
+    font-size: 44px;
+    font-weight: 400;
+    line-height: 1;
+    em { font-style: italic; color: var(--cm-amber); }
+  }
+  p { margin: 8px 0 0; color: var(--cm-text-dim); font-size: 14px; }
+}
+
+.cm-ticket {
+  --notch: 11px;
+  position: relative;
+  background: var(--cm-surface);
+  border-radius: 14px;
+  -webkit-mask:
+    radial-gradient(circle var(--notch) at 0 var(--tear, 70%), #0000 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--notch) at 100% var(--tear, 70%), #0000 98%, #000) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle var(--notch) at 0 var(--tear, 70%), #0000 98%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle var(--notch) at 100% var(--tear, 70%), #0000 98%, #000) right / 51% 100% no-repeat;
+}
+.cm-perforation {
+  height: 0;
+  border-top: 2px dashed var(--cm-line);
+  margin: 0 16px;
+}
+
+.cm-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 20px 4px;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+.cm-chip {
+  flex: none;
+  border: 1px solid var(--cm-line);
+  background: var(--cm-surface);
+  color: var(--cm-text-dim);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font: 600 13px var(--cm-font-ui);
+  transition: all 0.2s ease;
+  &.active {
+    background: var(--cm-amber);
+    border-color: var(--cm-amber);
+    color: #1a1206;
+  }
+}
+.cm-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--cm-amber-soft);
+  color: var(--cm-amber);
+}
+
+.cm-field {
+  display: block;
+  margin-bottom: 14px;
+  > span {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cm-text-faint);
+    margin: 0 0 6px 4px;
+  }
+  ion-input,
+  ion-textarea {
+    --background: var(--cm-surface);
+    --color: var(--cm-text);
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --border-radius: 14px;
+    --highlight-color-focused: var(--cm-amber);
+    border: 1px solid var(--cm-line);
+    border-radius: 14px;
+    min-height: 52px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+    &.has-focus { border-color: var(--cm-amber); }
+  }
+}
+.cm-error {
+  background: var(--cm-red-soft);
+  color: #ff9a9d;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.cm-btn {
+  --border-radius: 14px;
+  --box-shadow: none;
+  height: 54px;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  margin: 0;
+}
+.cm-btn-ghost {
+  --background: var(--cm-surface);
+  --color: var(--cm-text);
+  --border-radius: 14px;
+  --box-shadow: none;
+  text-transform: none;
+  font-weight: 700;
+}
+
+.cm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 18px 14px;
+  padding: 6px 20px 32px;
+}
+
+.cm-empty {
+  text-align: center;
+  padding: 56px 32px;
+  color: var(--cm-text-dim);
+  ion-icon { font-size: 54px; color: var(--cm-text-faint); }
+  h3 {
+    font-family: var(--cm-font-display);
+    font-size: 30px;
+    font-weight: 400;
+    color: var(--cm-text);
+    margin: 14px 0 6px;
+  }
+  p { margin: 0 0 20px; font-size: 14px; }
+}
+
+.cm-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--cm-surface-2);
+  border: 2px solid var(--cm-line);
+  flex: none;
+}
+
+ion-searchbar.cm-search {
+  --background: var(--cm-surface);
+  --border-radius: 14px;
+  --box-shadow: none;
+  --icon-color: var(--cm-text-faint);
+  --color: var(--cm-text);
+  padding: 0 20px 12px;
+}
+
+ion-segment.cm-segment {
+  --background: var(--cm-surface);
+  margin: 0 20px 16px;
+  width: auto;
+  border-radius: 14px;
+  ion-segment-button {
+    --indicator-color: var(--cm-amber);
+    --color: var(--cm-text-dim);
+    --color-checked: #1a1206;
+    --border-radius: 10px;
+    text-transform: none;
+    font-weight: 700;
+    letter-spacing: 0;
+    min-height: 40px;
+  }
+}
+
+ion-toast.cm-toast {
+  --background: var(--cm-surface-2);
+  --color: var(--cm-text);
+  --border-radius: 14px;
+  font-weight: 600;
+}
+
+:root {
+  --cm-gutter: 20px;
+  --cm-max: 1360px;
+}
+@media (min-width: 768px) {
+  :root { --cm-gutter: 32px; }
+}
+@media (min-width: 1200px) {
+  :root { --cm-gutter: 48px; }
+}
+
+.cm-container {
+  max-width: var(--cm-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* On large screens every regular page is centred in a readable column.
+   Pages with full-bleed visuals opt out with .cm-bleed and use .cm-container. */
+@media (min-width: 900px) {
+  ion-content:not(.cm-bleed) {
+    --padding-start: max(24px, calc((100% - 1080px) / 2));
+    --padding-end: max(24px, calc((100% - 1080px) / 2));
+  }
+  .cm-grid {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 28px 20px;
+  }
+  .cm-page-head h1 { font-size: 56px; }
+}
+
+@media (min-width: 900px) {
+  ion-tab-bar {
+    justify-content: center;
+    gap: 6px;
+  }
+  ion-tab-button {
+    max-width: 128px;
+  }
+}
+
+.cm-btn {
+  --box-shadow: 0 10px 30px -12px rgba(245, 184, 65, 0.6);
+}
+
+:focus-visible {
+  outline: 2px solid var(--cm-amber);
+  outline-offset: 2px;
+}
+
+ion-tab-button {
+  --background: transparent;
+  --background-focused: transparent;
+}

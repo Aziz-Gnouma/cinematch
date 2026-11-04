@@ -1,0 +1,127 @@
+﻿<ion-content class="cm-bleed" [fullscreen]="true">
+  <nav class="topbar">
+    <span class="logo cm-display">Ciné<em>Match</em></span>
+    <div class="me">
+      <span class="hello">{{ greeting() }}, <b>{{ auth.profile()?.firstName }}</b></span>
+      @if (auth.profile(); as me) {
+      <a routerLink="/tabs/profile"><img class="cm-avatar" [src]="me.photo" alt="Mon profil" /></a>
+      }
+    </div>
+  </nav>
+
+  @if (hero(); as h) {
+  <section class="hero">
+    @for (s of catalog.spotlight(); track s.id; let i = $index) {
+    <img class="bg" [class.on]="i === heroIndex()" [src]="s.backdropUrl" alt="" />
+    }
+    <div class="hero-shade"></div>
+    <div class="hero-body cm-container">
+      <span class="badge">N°{{ heroIndex() + 1 }} des tendances</span>
+      <h1 class="cm-display">{{ h.title }}</h1>
+      <div class="facts">
+        <span class="score"><ion-icon name="star" /> {{ h.rating }}</span>
+        <span>{{ h.year }}</span>
+        @for (g of h.genres.slice(0, 3); track g) {
+        <span class="dot">{{ g }}</span>
+        }
+      </div>
+      <p class="overview">{{ h.overview }}</p>
+      <div class="cta">
+        <ion-button class="cm-btn" [routerLink]="['/movie', h.id]">
+          <ion-icon slot="start" name="information-circle-outline" /> Voir le film
+        </ion-button>
+        <ion-button class="cm-btn-glass" (click)="toggleHeroFav()" [disabled]="heroPending()">
+          @if (heroPending()) {
+          <ion-spinner name="crescent" />
+          } @else {
+          <ion-icon slot="start" [name]="heroIsFav() ? 'heart' : 'heart-outline'" />
+          {{ heroIsFav() ? 'Dans ma playlist' : 'Ma playlist' }} }
+        </ion-button>
+      </div>
+      <div class="dots">
+        @for (s of catalog.spotlight(); track s.id; let i = $index) {
+        <button [class.on]="i === heroIndex()" (click)="goHero(i)" [attr.aria-label]="'Film ' + (i + 1)"></button>
+        }
+      </div>
+    </div>
+  </section>
+  } @else {
+  <section class="hero placeholder">
+    <div class="hero-body cm-container">
+      <ion-skeleton-text [animated]="true" style="width: 120px; height: 22px; border-radius: 99px" />
+      <ion-skeleton-text [animated]="true" style="width: 70%; height: 54px; margin-top: 14px" />
+      <ion-skeleton-text [animated]="true" style="width: 50%; height: 16px; margin-top: 14px" />
+    </div>
+  </section>
+  }
+
+  <div class="filters">
+    <div class="cm-container">
+      <label class="search">
+        <ion-icon name="search" />
+        <input
+          type="search"
+          placeholder="Rechercher un film, un acteur, un réalisateur…"
+          [value]="query()"
+          (input)="onSearch($any($event.target).value)"
+        />
+        @if (query()) {
+        <button (click)="onSearch('')" aria-label="Effacer"><ion-icon name="close-circle" /></button>
+        }
+      </label>
+      <div class="cm-chips">
+        <button class="cm-chip" [class.active]="genreId() === null && !query()" (click)="pickGenre(null)">
+          Accueil
+        </button>
+        @for (g of catalog.genres(); track g.id) {
+        <button class="cm-chip" [class.active]="genreId() === g.id" (click)="pickGenre(g.id)">{{ g.name }}</button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <main class="cm-container content">
+    @if (catalog.error()) {
+    <div class="cm-empty">
+      <h3>Projection interrompue</h3>
+      <p>{{ catalog.error() }}</p>
+      <ion-button class="cm-btn" (click)="retry()">Réessayer</ion-button>
+    </div>
+    } @else if (mode() === 'browse') { @if (catalog.loading() && !catalog.rails().length) { @for (r of skeletonRails;
+    track r) {
+    <div class="sk-rail">
+      <ion-skeleton-text [animated]="true" class="sk-title" />
+      <div class="sk-row">
+        @for (c of skeletonCards; track c) {
+        <ion-skeleton-text [animated]="true" class="sk-card" />
+        }
+      </div>
+    </div>
+    } } @else { @for (rail of catalog.rails(); track rail.key) {
+    <app-movie-rail [title]="rail.title" [subtitle]="rail.subtitle" [movies]="rail.movies" />
+    } } } @else {
+    <header class="results-head">
+      <h2 class="cm-display">
+        @if (mode() === 'search') { Résultats pour <em>« {{ query() }} »</em>
+        } @else {
+        <em>{{ genreName() }}</em>
+        }
+      </h2>
+      <span>{{ searching() ? 'Recherche…' : results().length + ' films' }}</span>
+    </header>
+    @if (searching() && !results().length) {
+    <div class="center"><ion-spinner name="crescent" /></div>
+    } @else if (results().length) {
+    <div class="cm-grid">
+      @for (m of results(); track m.id) {
+      <app-poster-card [movie]="m" />
+      }
+    </div>
+    } @else {
+    <div class="cm-empty">
+      <h3>Aucun film trouvé</h3>
+      <p>Essayez un autre titre ou le nom d'un acteur.</p>
+    </div>
+    } }
+  </main>
+</ion-content>
